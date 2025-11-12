@@ -13,11 +13,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Login
+Route::get("/", [\App\Http\Controllers\LoginController::class, 'index']);
+Route::get("login", [\App\Http\Controllers\LoginController::class, 'index'])->name('login');
+Route::post("action-login", [\App\Http\Controllers\LoginController::class, 'actionLogin'])->name('action-login');
 
-// GET
+
+//admin
+Route::prefix('admin')->group(function(){
+    Route::resource("dashboard", \App\Http\Controllers\ADMIN\DashboardController::class);
+});
+//logout
+Route::get("sign-out", [\App\Http\Controllers\LoginController::class, 'logout'])->name('sign-out');
+
+
+// GET: cuma liat dan baca data
 Route::get('belajar',[\App\Http\Controllers\BelajarController::class,'index']);
 
 Route::get('aritmatika', [\App\Http\Controllers\BelajarController::class,'create']);

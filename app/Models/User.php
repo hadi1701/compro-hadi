@@ -17,7 +17,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
+    protected $fillable = [ //masukkin data di kolom name, email dll
         'name',
         'email',
         'password',
@@ -28,7 +28,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $hidden = [
+    protected $hidden = [ //nyembunyiin kolom yang gk mau ditampilin di user
         'password',
         'remember_token',
     ];
@@ -38,7 +38,7 @@ class User extends Authenticatable
      *
      * @var array<string, string>
      */
-    protected $casts = [
+    protected $casts = [ //merubah tipe data, password jadi hash
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
