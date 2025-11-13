@@ -22,9 +22,13 @@ Route::post("action-login", [\App\Http\Controllers\LoginController::class, 'acti
 //admin
 Route::prefix('admin')->group(function(){
     Route::resource("dashboard", \App\Http\Controllers\ADMIN\DashboardController::class);
+    Route::resource("user", \App\Http\Controllers\ADMIN\UserController::class);
+    Route::resource("blog", \App\Http\Controllers\ADMIN\BlogController::class);
 });
+
 //logout
 Route::get("sign-out", [\App\Http\Controllers\LoginController::class, 'logout'])->name('sign-out');
+
 
 
 // GET: cuma liat dan baca data
@@ -33,7 +37,7 @@ Route::get('belajar',[\App\Http\Controllers\BelajarController::class,'index']);
 Route::get('aritmatika', [\App\Http\Controllers\BelajarController::class,'create']);
 
 //aritmatika/tambah adalah yang interaksi dengan database
-Route::get('aritmatika/tambah', [\App\Http\Controllers\BelajarController::class,'tambah']); 
+Route::get('aritmatika/tambah', [\App\Http\Controllers\BelajarController::class,'tambah']);
 
 Route::get('aritmatika/kurang', [\App\Http\Controllers\BelajarController::class, 'kurang']);
 
