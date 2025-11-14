@@ -12,6 +12,7 @@
                 <thead class="bg-primary">
                     <tr>
                         <th class="text-white">No</th>
+                        <th class="text-white">Photo</th>
                         <th class="text-white">Category</th>
                         <th class="text-white">Title</th>
                         <th class="text-white">Content</th>
@@ -23,6 +24,9 @@
 
                     <tr>
                         <td>{{$key + 1}}</td>
+                        <td>
+                            <img width="100" src="{{ asset('storage/' . $data->photo) }}" alt="">
+                        </td>
                         <td>{{$data->category->name}}</td>
                         <td>{{$data->title}}</td>
                         <td>{{$data->content}}</td>

@@ -9,7 +9,15 @@ class Blog extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['category_id', 'title', 'slug', 'content'];
+    protected $fillable = [
+        'category_id',
+        'title',
+        'slug',
+        'content',
+        'photo',
+        'status',
+        'writer'
+    ];
 
     //hasMany (satu ke banyak)
     //belongsto (banyak ke satu)

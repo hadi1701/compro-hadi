@@ -5,9 +5,11 @@ namespace App\Http\Controllers\ADMIN;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 use App\Models\Blog;
 use App\Models\Categories;
-Use Alert;
+use Illuminate\Support\Facades\Auth;
+use Alert;
 
 
 class BlogController extends Controller
@@ -30,8 +32,11 @@ class BlogController extends Controller
     public function create()
     {
         $title = "Create New Blog";
+        // PERBAIKAN: Menggunakan operator nullsafe (?->) dan null coalescing (?? '')
+        // untuk mencegah error jika pengguna belum login.
+        $user = Auth::user()?->name ?? 'Admin';
         $categories = Categories::get();
-        return view('admin.blog.create', compact('title', 'categories'));
+        return view('admin.blog.create', compact('title', 'categories', 'user'));
     }
 
     /**
@@ -39,14 +44,24 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-        Blog::create([
+        $data = [
             'category_id' => $request->category_id,
             'title' => $request->title,
             'slug' => Str::slug($request->title),
-            'content' => $request->content,
+            'content' => $request->content, //foto gk dimasukkin karna opsional
+            'status' => $request->status,
+            // Perbaikan kecil: Lebih baik menggunakan Auth::user() daripada Auth()->user()
+            // Menggunakan ?? '' sudah benar untuk default.
+            'writer' => Auth::user()?->name ?? 'System'
+        ];
 
-        ]);
-        Alert::success('Success', 'Create New User Success');
+        //has file (memiliki gambar)
+        if($request->hasFile('photo')){
+            $photo = $request->file('photo')->store('blog', 'public');
+            $data['photo'] = $photo;
+        }
+        Blog::create($data);
+        Alert::success('Success', 'Create New Blog Success');
         // alert()->info('Info','Password Belum Diisi');
         //toast posisi atas sebelah kanan
         // toast('Create New User Success','success');
@@ -69,6 +84,7 @@ class BlogController extends Controller
     public function edit(string $id)
     {
         $edit = Blog::find($id); //User mewakili table
+        $categories = Categories::get();
         $title = "Edit Blog";
         return view('admin.blog.edit', compact('edit', 'categories', 'title'));
     }
@@ -79,23 +95,40 @@ class BlogController extends Controller
     public function update(Request $request, string $id)
     {
         $update = Blog::find($id); //menemukan table dan ambil id-nya
-        $update->category_id = $request->category_id; //ambil semua data yang mau diupdate category, email, pass
-        $update->title = $request->title;
-        $update->content = $request->content;
-        $update->slug = Str::slug($request->slug); //untuk membuat pemisah untuk kata yang jamak
+        $data = [
+            'category_id' => $request->category_id,
+            'title' => $request->title,
+            'slug' => Str::slug($request->title),
+            'content' => $request->content, //foto gk dimasukkin karna opsional
+            'status' => $request->status,
+            // PERBAIKAN: Memastikan Auth::user() aman dengan ?->
+            'writer' => Auth::user()?->name ?? 'System'
+        ];
 
-        $update->save();
-        return redirect()->to('blog');
+        if($request->hasFile('photo')){
+            if($update->photo){
+                File::delete(public_path('storage/'. $update->photo)); //setiap foto masuk ke storage, dan ke public, nanti dia masuk ke folder blog
+            }
+            $photo = $request->file('photo')->store('blog', 'public');
+            $data['photo'] = $photo;
+        }
+
+        $update->update($data);
+        return redirect()->to('admin/blog');
     }
 
     /**
      * Remove the specified resource from storage.
-    */
+     */
 
     //kalo make destroy makenya form buat eksekusi delete data, gk make a href, kalo make a href nanti bikin public function lagi
     public function destroy(string $id)
     {
-        Blog::find($id)->delete();
+        $delete = Blog::find($id);
+        $delete->delete();
+        // PERBAIKAN: Nama variabel foto salah, harusnya $delete->photo, bukan $delete->$photo
+        File::delete(public_path('storage/'. $delete->photo));
+        alert()->success('Success', 'Delete success!');
         return redirect()->to('admin/blog');
     }
 }
